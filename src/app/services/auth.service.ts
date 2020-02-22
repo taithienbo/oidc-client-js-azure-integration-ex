@@ -8,7 +8,9 @@ export class AuthService {
 
   _userManager: UserManager; 
 
-  constructor() { }
+  constructor() { 
+      this.instantiate(); 
+  }
 
   public async loginRedirect(): Promise<any> {
       return await this._userManager.signinRedirect(); 
@@ -19,11 +21,6 @@ export class AuthService {
     return user; 
   }
 
-  public async logout() {
-    await this._userManager.revokeAccessToken();
-    await this._userManager.clearStaleState();
-    await this._userManager.removeUser(); 
-}
 
   public async logoutRedirect(): Promise<any> {
       await this._userManager.signoutRedirect();
@@ -59,6 +56,10 @@ export class AuthService {
       return this._userManager.getUser();
   }
 
+  public async handleCallBack() {
+      var user = await this._userManager.signinRedirectCallback(); 
+      console.log("Callback after sigin handled.", user);
+  }
 
   public instantiate() {
       var settings = environment.oidcSettings;

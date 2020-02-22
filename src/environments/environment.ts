@@ -5,9 +5,16 @@
 export const environment = {
   production: false,
 
-  oidcSettings: {
-    
-  }
+  oidcSettings: { 
+    client_id : "47ea6724-b21f-46de-9d17-7425920f77e4", 
+    authority: "https://taithienbo.b2clogin.com/tfp/taithienbo.onmicrosoft.com/b2c_1_signupandsignin/v2.0/", 
+    response_type: "id_token token", 
+    post_logout_redirect_uri: "http://localhost:4200/", 
+    loadUserInfo: false,
+    redirect_uri: "http://localhost:4200/", 
+    silent_redirect_uri: "http://localhost:4200/", 
+    response_mode: "fragment", 
+    scope: "https://taithienbo.onmicrosoft.com/mywebapi/user_impersonation openid profile" }
 };
 
 /*
