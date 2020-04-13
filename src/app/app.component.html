@@ -305,9 +305,8 @@
   <span>Welcome</span>
   <div class="spacer"></div>
 
-  <button *ngIf="user ==null" (click)="login()">Login &nbsp;</button> 
+  <button *ngIf="user ==null" (click)="login()">Login &nbsp;</button>
   <div *ngIf="user != null">
-    <span>Hello, {{user.profile.given_name}} &nbsp;</span>
     <button (click)="logout()">Logout</button>
   </div>
 </div>
@@ -316,11 +315,11 @@
   <p>This sample project shows how to integrate with azure adb2c using oidc-client-js. </p>
   <p>Clicking the Login button above to sign in against my azure adb2c tenant or register an account. </p>
   <p>Modify the environment.ts file as appropriate to connect against your own azure adb2c tenant. </p>
-  <p>Check out the accompany blog post at: <a href="https://taithienbo.com">https://taithienbo.com.</a></p>
+  <p>Check out the accompany blog post <a href="https://www.taithienbo.com/how-to-authenticate-user-against-azure-adb2c-from-angular-app-using-oidc-client-js/">here.</a></p>
 </div>
 
 <div class="content" *ngIf="user !=null">
-  
+
   <p>Login success. Below is the user's info: </p>
     <table width="100%; table-layout='fixed'">
       <tbody>
@@ -328,24 +327,24 @@
           <td>{{item.key}}</td>
           <td *ngIf="item.key != 'profile'">{{item.value}}</td>
           <td *ngIf="item.key == 'profile'">
-            <table>  
+            <table>
               <tbody>
                 <tr *ngFor="let nestedItem of item.value | keyvalue">
                   <td>{{nestedItem.key}}</td>
                   <td>{{nestedItem.value}}</td>
                 </tr>
-              </tbody>     
+              </tbody>
             </table>
           </td>
         </tr>
       </tbody>
-     
+
     </table>
-  
+
 </div>
 
- 
-  
+
+
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * The content above * * * * * * * * * * * -->
 <!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
