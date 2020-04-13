@@ -1,30 +1,30 @@
 import { Injectable } from '@angular/core';
 import { UserManager, User } from 'oidc-client';
-import { environment } from '../../environments/environment'; 
+import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  _userManager: UserManager; 
+  _userManager: UserManager;
 
-  constructor() { 
-      this.instantiate(); 
+  constructor() {
+      this.instantiate();
   }
 
   public async loginRedirect(): Promise<any> {
-      return await this._userManager.signinRedirect(); 
+      return await this._userManager.signinRedirect();
   }
 
   public async loginSilent(): Promise<User> {
-    var user = await this._userManager.signinSilent(); 
-    return user; 
+    var user = await this._userManager.signinSilent();
+    return user;
   }
 
 
   public async logoutRedirect(): Promise<any> {
       await this._userManager.signoutRedirect();
-      await this._userManager.clearStaleState(); 
+      await this._userManager.clearStaleState();
   }
 
   public addUserUnloadedCallback(callback): void {
@@ -57,12 +57,12 @@ export class AuthService {
   }
 
   public async handleCallBack() {
-      var user = await this._userManager.signinRedirectCallback(); 
-      console.log("Callback after sigin handled.", user);
+      const user = await this._userManager.signinRedirectCallback();
+      console.log('Callback after sigin handled.', user);
   }
 
   public instantiate() {
-      var settings = environment.oidcSettings;
+      const settings = environment.oidcSettings;
       this._userManager = new UserManager(settings);
   }
 }

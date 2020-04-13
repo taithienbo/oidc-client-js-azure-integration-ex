@@ -5,16 +5,16 @@
 export const environment = {
   production: false,
 
-  oidcSettings: { 
-    client_id : "47ea6724-b21f-46de-9d17-7425920f77e4", 
-    authority: "https://taithienbo.b2clogin.com/tfp/taithienbo.onmicrosoft.com/b2c_1_signupandsignin/v2.0/", 
-    response_type: "id_token token", 
-    post_logout_redirect_uri: "http://localhost:4200/", 
+  oidcSettings: {
+    client_id : '{replace with client id of app registration for this angular app}',
+    authority: 'https://login.microsoftonline.com/{replace with tenant id}/v2.0/',
+    response_type: 'code',
+    post_logout_redirect_uri: 'http://localhost:4200/',
     loadUserInfo: false,
-    redirect_uri: "http://localhost:4200/", 
-    silent_redirect_uri: "http://localhost:4200/", 
-    response_mode: "fragment", 
-    scope: "https://taithienbo.onmicrosoft.com/mywebapi/user_impersonation openid profile" }
+    redirect_uri: 'http://localhost:4200/',
+    silent_redirect_uri: 'http://localhost:4200/',
+    scope: '{replace with scope you defined in Expose an API section of app registration for your API}/user_impersonation openid profile'
+  }
 };
 
 /*

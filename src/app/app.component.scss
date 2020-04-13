@@ -1,4 +1,4 @@
-table { 
+table {
     table-layout:fixed;
 }
 
@@ -6,4 +6,17 @@ td {
     padding: 0.5rem;
     text-align: left;
     word-wrap: break-word;
+}
+
+
+
+button {
+  text-align: center;
+  border-radius: 5px;
+  margin-right: 15px;
+  color: black;
+  font-size: large;
+  :hover {
+    opacity: .8;
+  }
 }

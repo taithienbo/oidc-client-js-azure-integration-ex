@@ -23,10 +23,12 @@ bin/
 Bin/
 obj/
 Obj/
-
+dist/
 # Visual Studio 2015 cache/options directory
 .vs/
 
+# Vs code
+.vscode
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
@@ -229,3 +231,4 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+dist/
