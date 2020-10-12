@@ -1,68 +1,92 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { UserManager, User } from 'oidc-client';
-import { environment } from '../../environments/environment'; 
+import { BehaviorSubject, from, Observable, Subscription } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { OidcSettings, SettingsService } from './settings.service';
+import { Log } from 'oidc-client';
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class AuthService {
+export class AuthService implements OnDestroy {
+  private isReadySubject: BehaviorSubject<boolean> = new BehaviorSubject(null);
+  private userManager: UserManager;
+  private oidcSettings$: Subscription;
+  private oidcSettings: OidcSettings;
+  private userSubject: BehaviorSubject<User> = new BehaviorSubject(null);
+  private userLoadedCallback = (user) => {
+    console.log(
+      'AuthService: on userLoadedCallback. Got user: ' + (user !== null)
+    );
+    this.userSubject.next(user);
+  };
+  private userUnloadedCallback = () => {
+    console.log('AuthService: on UserUnloadedCallback.');
+    this.userSubject.next(null);
+  };
 
-  _userManager: UserManager; 
+  constructor(private settingsSerivice: SettingsService) {
+    this.instantiate();
+  }
 
-  constructor() { 
-      this.instantiate(); 
+  get isReady(): Observable<boolean> {
+    return this.isReadySubject.asObservable();
+  }
+
+  get user(): Observable<User> {
+    return this.userSubject.asObservable();
+  }
+
+  get settings(): OidcSettings {
+    return this.oidcSettings;
+  }
+
+  loadUser() {
+    this.userManager.getUser().then((user) => this.userSubject.next(user));
+  }
+
+  ngOnDestroy(): void {
+    if (this.oidcSettings$) {
+      this.oidcSettings$.unsubscribe();
+    }
+    if (this.userManager) {
+      this.userManager.events.removeUserLoaded(this.userLoadedCallback);
+      this.userManager.events.removeUserUnloaded(this.userUnloadedCallback);
+    }
   }
 
   public async loginRedirect(): Promise<any> {
-      return await this._userManager.signinRedirect(); 
+    return await this.userManager.signinRedirect();
   }
 
   public async loginSilent(): Promise<User> {
-    var user = await this._userManager.signinSilent(); 
-    return user; 
+    return await this.userManager.signinSilent();
   }
-
 
   public async logoutRedirect(): Promise<any> {
-      await this._userManager.signoutRedirect();
-      await this._userManager.clearStaleState(); 
+    await this.userManager.signoutRedirect();
+    await this.userManager.clearStaleState();
   }
 
-  public addUserUnloadedCallback(callback): void {
-      this._userManager.events.addUserUnloaded(callback);
-  }
-
-  public removeUserUnloadedCallback(callback): void {
-      this._userManager.events.removeUserLoaded(callback);
-  }
-
-  public addUserLoadedCallback(callback): void {
-      this._userManager.events.addUserLoaded(callback);
-  }
-
-  public removeUserLoadedCallback(callback): void {
-      this._userManager.events.removeUserLoaded(callback);
-  }
-
-  public async accessToken(): Promise<string> {
-      var user = await this._userManager.getUser();
-      if (user == null) {
-          throw new Error("User is not logged in");
-      }
-      return user.access_token;
-  }
-
-
-  public async getUser(): Promise<User> {
-      return this._userManager.getUser();
-  }
-
-  public async handleCallBack() {
-      var user = await this._userManager.signinRedirectCallback(); 
-      console.log("Callback after sigin handled.", user);
+  public loginRedirectCallback() {
+    this.userManager
+      .signinRedirectCallback()
+      .then((user) => this.userSubject.next(user));
   }
 
   public instantiate() {
-      var settings = environment.oidcSettings;
-      this._userManager = new UserManager(settings);
+    Log.logger = console;
+    Log.level = Log.DEBUG;
+    this.oidcSettings$ = this.settingsSerivice.oidcSettings.subscribe(
+      (settings) => {
+        if (settings) {
+          this.userManager = new UserManager(settings);
+          this.userManager.events.addUserLoaded(this.userLoadedCallback);
+          this.userManager.events.addUserUnloaded(this.userUnloadedCallback);
+          this.oidcSettings = settings;
+          this.isReadySubject.next(true);
+        }
+      }
+    );
   }
 }
