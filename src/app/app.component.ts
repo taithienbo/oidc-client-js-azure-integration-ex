@@ -20,7 +20,7 @@ import {
   ],
 })
 export class AppComponent implements OnInit, OnDestroy {
-  user: User;
+  user: any;
 
   userJson: string;
 
