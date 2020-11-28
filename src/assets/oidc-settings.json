@@ -1,12 +1,11 @@
 {
   "client_id": "47ea6724-b21f-46de-9d17-7425920f77e4",
-  "baseUrl": "http://localhost:4200",
-  "silent_redirect_uri": "http://localhost:4200/assets/signin_silent_callback.html",
   "signupSigninPolicy": "b2c_1_signupandsignin",
   "tenantName": "taithienbo",
   "response_type": "id_token token",
   "loadUserInfo": false,
   "response_mode": "fragment",
   "scope": "https://taithienbo.onmicrosoft.com/mywebapi/user_impersonation openid profile",
-  "editProfilePolicy": "B2C_1_a_profile_edit"
+  "editProfilePolicy": "B2C_1_a_profile_edit",
+  "resetPasswordPolicy": "B2C_1_Password_Reset_2"
 }

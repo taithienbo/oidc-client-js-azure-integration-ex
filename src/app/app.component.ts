@@ -1,9 +1,7 @@
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { User } from 'oidc-client';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { Subscription } from 'rxjs';
-import { OidcSettings, SettingsService } from './services/settings.service';
 import {
   HashLocationStrategy,
   LocationStrategy,
@@ -32,12 +30,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     public authService: AuthService
-  ) {
-    console.log('AppComponent constructor() called.');
-  }
+  ) {}
 
   ngOnDestroy(): void {
-    console.log('AppComponent ngOnDestroy() called.');
     if (this.routeFragments$) {
       this.routeFragments$.unsubscribe();
     }
@@ -50,48 +45,35 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    console.log('AppComponent ngOnInit() called.');
     const idTokenKeyWord = 'id_token';
     const accessTokenKeyWord = 'access_token';
     const errorDescriptionKeyWord = 'error_description';
     const cancellationCode = 'AADB2C90091';
-    console.log('AppComponent: ngOnInit called');
+    const resetPasswordCode = 'AADB2C90118';
     this.authServiceIsReady$ = this.authService.isReady.subscribe((isReady) => {
-      console.log('AppComponent: authService isReady: ' + isReady);
       if (isReady) {
-        console.log('AppComponent: subscring to user object');
-        this.user$ = this.authService.user.subscribe((user) => {
-          console.log('AppComponent: user emitted: ' + (user !== null));
-          if (user) {
-            this.user = user;
-            this.userJson = JSON.stringify(user);
-          }
-        });
         this.route.fragment.subscribe((fragment) => {
           const params = new URLSearchParams(fragment);
           const idToken = params.get(idTokenKeyWord);
           const accessToken = params.get(accessTokenKeyWord);
           const errorDescription = params.get(errorDescriptionKeyWord);
-          console.log('AppComponent: Id token: ' + idToken);
-          console.log('AppComponent errorCode: ' + errorDescription);
           if (idToken && accessToken) {
-            // if both id and access tokens are in the URL, it means the user
-            // has come back from a successful authentication.
-            this.authService.loginRedirectCallback();
-            // remove the tokens from the URL
-            window.history.replaceState(null, document.title, window.origin);
+            this.handleIdAndAccessToken();
           } else if (idToken) {
-            // if only the id token is in the URL, it means the user has come
-            // back on a successful edit profile or password reset user flow.
-            // In either case, we pick up the changes by doing a silent login.
-            this.authService.loginSilent().then(() => {
-              window.history.replaceState(null, document.title, window.origin);
-            });
+            this.handleIdToken();
           } else if (
             errorDescription &&
             errorDescription.includes(cancellationCode)
           ) {
-            this.authService.loadUser();
-            window.history.replaceState(null, document.title, window.origin);
+            this.handleUserCancellation();
+          } else if (
+            errorDescription &&
+            errorDescription.includes(resetPasswordCode)
+          ) {
+            this.handlePasswordReset();
+          } else {
+            //
           }
         });
       }
@@ -121,5 +103,45 @@ export class AppComponent implements OnInit, OnDestroy {
       return true;
     }
     return false;
+  }
+
+  private handlePasswordReset() {
+    // we simply redirect the user to the reset password page.
+    window.location.href = this.authService.settings.resetPasswordRoute;
+  }
+
+  private handleUserCancellation() {
+    // The user has clicked Cancel from an azure adb2c user flow page (e.g.
+    // user has cancelled the reset password or edit profile process).
+    // In a real app, you may want to navigate the user back to the home
+    // page or do something else. However, here, I simply ignore the result.
+  }
+
+  private handleIdAndAccessToken() {
+    // if both id and access tokens are in the URL, it means the user
+    // has come back from a successful authentication. We call the
+    // library to handle the result (e.g. store the user and state in storage)
+    this.authService.loginRedirectCallback().then((user) => {
+      this.user = user;
+    });
+  }
+
+  private handleIdToken() {
+    // If the user has come back from the edit profile page, the
+    // user object is still present in the storage, and we can do a
+    // silent login to pick up any changes to the profile if desired. However,
+    // if the user has reset the password, the user object is no longer
+    // available, and the user needs to login again.
+    this.authService.loadUser().then((user) => {
+      if (user) {
+        // user has come back after edit profile.
+        this.authService.loginSilent().then((u) => {
+          this.user = u;
+        });
+      } else {
+        // user has come back after reset password and need to login again.
+        this.authService.loginRedirect();
+      }
+    });
   }
 }

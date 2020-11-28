@@ -11,9 +11,9 @@ export class SettingsService {
     this.loadOidcConfigs();
   }
 
-  private oidcSettingsSubject: BehaviorSubject<
-    OidcSettings
-  > = new BehaviorSubject(null);
+  private oidcSettingsSubject: BehaviorSubject<OidcSettings> = new BehaviorSubject(
+    null
+  );
 
   get oidcSettings(): Observable<OidcSettings> {
     return this.oidcSettingsSubject.asObservable();
@@ -40,21 +40,27 @@ export class OidcSettings {
   client_id: string;
   response_type: string;
   response_mode: string;
-  silent_redirect_uri: string;
   scope: string;
   loadUserInfo: boolean;
   signupSigninPolicy: string;
   tenantName: string;
-  baseUrl: string;
-  silentRedirectUrl: string;
   editProfilePolicy: string;
+  resetPasswordPolicy: string;
 
   constructor(init?: Partial<OidcSettings>) {
     Object.assign(this, init);
   }
 
+  get baseUrl() {
+    return window.location.origin;
+  }
+
   get post_logout_redirect_uri() {
     return this.baseUrl;
+  }
+
+  get silent_redirect_uri() {
+    return `${this.baseUrl}/assets/signin_silent_callback.html`;
   }
 
   get redirect_uri() {
@@ -63,6 +69,10 @@ export class OidcSettings {
 
   get editProfileRoute() {
     return this.buildRoute({ policyName: this.editProfilePolicy });
+  }
+
+  get resetPasswordRoute() {
+    return this.buildRoute({ policyName: this.resetPasswordPolicy });
   }
 
   get authority() {

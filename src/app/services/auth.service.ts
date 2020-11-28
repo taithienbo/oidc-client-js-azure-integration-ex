@@ -20,6 +20,7 @@ export class AuthService implements OnDestroy {
     );
     this.userSubject.next(user);
   };
+
   private userUnloadedCallback = () => {
     console.log('AuthService: on UserUnloadedCallback.');
     this.userSubject.next(null);
@@ -42,7 +43,7 @@ export class AuthService implements OnDestroy {
   }
 
   loadUser() {
-    this.userManager.getUser().then((user) => this.userSubject.next(user));
+    return this.userManager.getUser();
   }
 
   ngOnDestroy(): void {
@@ -69,9 +70,7 @@ export class AuthService implements OnDestroy {
   }
 
   public loginRedirectCallback() {
-    this.userManager
-      .signinRedirectCallback()
-      .then((user) => this.userSubject.next(user));
+    return this.userManager.signinRedirectCallback();
   }
 
   public instantiate() {
